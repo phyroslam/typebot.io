@@ -11,7 +11,8 @@ import {
   OpenAICredentials,
   chatCompletionMessageRoles,
 } from '@typebot.io/schemas/features/blocks/integrations/openai'
-import { byId, isEmpty } from '@typebot.io/lib'
+//import { byId, isEmpty } from '@typebot.io/lib'
+import { byId } from '@typebot.io/lib'
 import { decrypt, isCredentialsV2 } from '@typebot.io/lib/api/encryption'
 import { updateVariables } from '@/features/variables/updateVariables'
 import { parseVariableNumber } from '@/features/variables/parseVariableNumber'
@@ -114,15 +115,17 @@ export const createChatCompletionOpenAI = async (
     }
   const messageContent = response.choices.at(0)?.message?.content
   const totalTokens = response.usage?.total_tokens
-  if (isEmpty(messageContent)) {
+  const functionCallName = response.choices.at(0)?.message?.function_call?.name
+  const functionCallArguments = response.choices.at(0)?.message?.function_call?.arguments
+  /*if (isEmpty(messageContent)) {
     console.error('OpenAI block returned empty message', response)
     return { outgoingEdgeId, newSessionState }
-  }
+  }*/
   return resumeChatCompletion(newSessionState, {
     options,
     outgoingEdgeId,
     logs,
-  })(messageContent, totalTokens)
+  })(messageContent, totalTokens, functionCallName, functionCallArguments)
 }
 
 const isNextBubbleMessageWithAssistantMessage =

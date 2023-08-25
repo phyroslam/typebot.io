@@ -17,7 +17,7 @@ export const resumeChatCompletion =
       logs?: ChatReply['logs']
     }
   ) =>
-  async (message: string, totalTokens?: number) => {
+  async (message?: string, totalTokens?: number, functionCallName?: string, functionCallArguments?: string) => {
     let newSessionState = state
     const newVariables = options.responseMapping.reduce<
       VariableWithUnknowValue[]
@@ -25,7 +25,7 @@ export const resumeChatCompletion =
       const { typebot } = newSessionState.typebotsQueue[0]
       const existingVariable = typebot.variables.find(byId(mapping.variableId))
       if (!existingVariable) return newVariables
-      if (mapping.valueToExtract === 'Message content') {
+      if (mapping.valueToExtract === 'Message content' && isDefined(message)) {
         newVariables.push({
           ...existingVariable,
           value: Array.isArray(existingVariable.value)
@@ -37,6 +37,18 @@ export const resumeChatCompletion =
         newVariables.push({
           ...existingVariable,
           value: totalTokens,
+        })
+      }
+      if (mapping.valueToExtract === 'Function call' && isDefined(functionCallName)) {
+        newVariables.push({
+          ...existingVariable,
+          value: functionCallName,
+        })
+      }
+      if (mapping.valueToExtract === 'Function arguments' && isDefined(functionCallArguments)) {
+        newVariables.push({
+          ...existingVariable,
+          value: functionCallArguments,
         })
       }
       return newVariables

@@ -35,6 +35,8 @@ export const chatCompletionMessageCustomRoles = [
 export const chatCompletionResponseValues = [
   'Message content',
   'Total tokens',
+  'Function call',
+  'Function arguments',
 ] as const
 
 const openAIBaseOptionsSchema = z.object({
@@ -65,9 +67,31 @@ const chatCompletionCustomMessageSchema = z.object({
     .optional(),
 })
 
-const chatCompletionCustomFunctionSchema = z.object({
+const chatCompletionFunctionPropertiesSchema = z.object({
   id: z.string(),
   name: z.string(),
+  type: z.string().optional(),
+  description: z.string().optional(),
+  enum: z.array(
+    z.string()
+  ).optional(),
+})
+
+const chatCompletionFunctionParametersSchema = z.object({
+  id: z.string(),
+  type: z.string().default("object"),
+  properties: z.record(
+    chatCompletionFunctionPropertiesSchema
+  ),
+})
+
+const chatCompletionFunctionSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  description: z.string().optional(),
+  parameters: z.array(
+    chatCompletionFunctionParametersSchema
+  )
 })
 
 const chatCompletionOptionsSchema = z
@@ -78,7 +102,7 @@ const chatCompletionOptionsSchema = z
       z.union([chatCompletionMessageSchema, chatCompletionCustomMessageSchema])
     ),
     functions: z.array(
-      chatCompletionCustomFunctionSchema
+      chatCompletionFunctionSchema
     ),
     advancedSettings: z
       .object({
@@ -144,12 +168,7 @@ export const defaultChatCompletionOptions = (
       id: createId(),
     },
   ],
-  functions: [
-    {
-      id: createId(),
-      name: 'test',
-    },
-  ],
+  functions: [],
   responseMapping: [
     {
       id: createId(),
