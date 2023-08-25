@@ -65,12 +65,20 @@ const chatCompletionCustomMessageSchema = z.object({
     .optional(),
 })
 
+const chatCompletionCustomFunctionSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+})
+
 const chatCompletionOptionsSchema = z
   .object({
     task: z.literal(openAITasks[0]),
     model: z.enum(chatCompletionModels),
     messages: z.array(
       z.union([chatCompletionMessageSchema, chatCompletionCustomMessageSchema])
+    ),
+    functions: z.array(
+      chatCompletionCustomFunctionSchema
     ),
     advancedSettings: z
       .object({
@@ -134,6 +142,12 @@ export const defaultChatCompletionOptions = (
   messages: [
     {
       id: createId(),
+    },
+  ],
+  functions: [
+    {
+      id: createId(),
+      name: 'test',
     },
   ],
   responseMapping: [

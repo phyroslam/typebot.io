@@ -5,6 +5,7 @@ import {
   deprecatedCompletionModels,
 } from '@typebot.io/schemas/features/blocks/integrations/openai'
 import { ChatCompletionMessageItem } from './ChatCompletionMessageItem'
+import { ChatCompletionFunctionItem } from './ChatCompletionFunctionItem'
 import {
   Accordion,
   AccordionButton,
@@ -46,6 +47,13 @@ export const OpenAIChatCompletionSettings = ({
     onOptionsChange({
       ...options,
       messages,
+    })
+  }
+
+  const updateFunctions = (functions: typeof options.functions) => {
+    onOptionsChange({
+      ...options,
+      functions,
     })
   }
 
@@ -102,6 +110,24 @@ export const OpenAIChatCompletionSettings = ({
               onItemsChange={updateMessages}
               isOrdered
               addLabel="Add message"
+            />
+          </AccordionPanel>
+        </AccordionItem>
+        <AccordionItem>
+          <AccordionButton>
+            <Text w="full" textAlign="left">
+              Functions
+            </Text>
+            <AccordionIcon />
+          </AccordionButton>
+
+          <AccordionPanel pt="4">
+            <TableList
+              initialItems={options.functions}
+              Item={ChatCompletionFunctionItem}
+              onItemsChange={updateFunctions}
+              isOrdered
+              addLabel="Add function"
             />
           </AccordionPanel>
         </AccordionItem>
